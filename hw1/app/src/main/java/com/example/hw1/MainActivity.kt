@@ -1,10 +1,12 @@
 package com.example.hw1
 
+import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.hw1.ui.theme.Hw1Theme
@@ -35,6 +38,13 @@ import com.example.hw1.ui.theme.Hw1Theme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+        val func: (Int, Color) -> Unit = { t1, t2 ->
+            val intent = MainActivity2.newInstance(this, t1, t2)
+            startActivity(intent)
+        }
+
         setContent {
             Hw1Theme {
                 // A surface container using the 'background' color from the theme
@@ -42,7 +52,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SquareScreen()
+                    SquareScreen(func)
                 }
             }
         }
@@ -50,7 +60,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SquareScreen() {
+fun SquareScreen(func: (Int, Color) -> Unit) {
 
     val orientation = LocalConfiguration.current.orientation
     val numColumns = if (orientation == ORIENTATION_PORTRAIT) 3 else 4
@@ -74,11 +84,11 @@ fun SquareScreen() {
 
             for (columnNumber in 1..numColumns){
                 if(ost != 0){
-                    createColumn(columnNumber,squaresInColumn + 1, numColumns)
+                    createColumn(columnNumber,squaresInColumn + 1, numColumns, func)
                     ost--
                 }
                 else {
-                    createColumn(columnNumber, squaresInColumn, numColumns)
+                    createColumn(columnNumber, squaresInColumn, numColumns, func)
                 }
             }
         }
@@ -96,7 +106,7 @@ fun SquareScreen() {
 }
 
 @Composable
-fun createColumn(columnNumber:Int, numSquare: Int, numColumns: Int) {
+fun createColumn(columnNumber:Int, numSquare: Int, numColumns: Int, func: (Int, Color) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -104,19 +114,23 @@ fun createColumn(columnNumber:Int, numSquare: Int, numColumns: Int) {
     ) {
         for (i in 0 until numSquare) {
             val number = i * numColumns + columnNumber
-            createSquare(number, numColumns)
+            createSquare(number, numColumns, func)
         }
     }
 }
 
 @Composable
-fun createSquare(number: Int, numColumns: Int){
+fun createSquare(number: Int, numColumns: Int, func: (Int, Color) -> Unit){
     Box(
         modifier = Modifier
             .aspectRatio(1f)
             .padding(10.dp)
             .size((LocalConfiguration.current.screenWidthDp / numColumns).dp)
             .background(if (number % 2 == 0) Color.Red else Color.Blue)
+            .clickable {
+                func(number, if (number % 2 == 0) Color.Red else Color.Blue)
+            }
+
     ) {
         Text(
             text = number.toString(),
@@ -124,3 +138,5 @@ fun createSquare(number: Int, numColumns: Int){
         )
     }
 }
+
+
