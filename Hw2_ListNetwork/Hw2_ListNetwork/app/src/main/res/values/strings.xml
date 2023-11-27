@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Hw2_List&amp;Network</string>
+    <string name="loading_failed">Error, retry later</string>
+</resources>
